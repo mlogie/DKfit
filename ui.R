@@ -1,8 +1,9 @@
-packrat::on()
+#packrat::on()
 package.list <- c('shiny','shinyBS','htmlTable','shinyjs','shinythemes','stringr','dplyr')
 new.packages <- package.list[!(package.list %in% installed.packages()[,"Package"])]
 if(length(new.packages)) lapply(new.packages, install.packages)
-success <- lapply(package.list, require, character.only = TRUE)
+success <- lapply(package.list, require, character.only = TRUE) %>%
+  unlist() %>% all()
 source('recipes.R')
 macros <- readRDS('macros.rds')
 tmpdir <- tempdir()
