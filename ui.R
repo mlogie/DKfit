@@ -2,8 +2,7 @@
 package.list <- c('shiny','shinyBS','htmlTable','shinyjs','shinythemes','stringr','dplyr')
 new.packages <- package.list[!(package.list %in% installed.packages()[,"Package"])]
 if(length(new.packages)) lapply(new.packages, install.packages)
-success <- lapply(package.list, require, character.only = TRUE) %>%
-  unlist() %>% all()
+success <- all(unlist(lapply(package.list, require, character.only = TRUE)))
 source('recipes.R')
 macros <- readRDS('macros.rds')
 tmpdir <- tempdir()
@@ -40,17 +39,10 @@ shinyUI(
                                       'Lightly active (light exercise/sports 1-3 days/week)',
                                       'Moderately active (moderate exercise/sports 3-5 days/week)',
                                       'Very active (hard exercise/sports 6-7 days a week)',
-                                      'Extremely active (very hard exercise/sports & a physical job)'))
-            ),
-            tabPanel(id = 'mealChoices', title = 'Options',
+                                      'Extremely active (very hard exercise/sports & a physical job)')),
               HTML('<br>'),
               sliderInput(inputId = 'totalCalories', label = 'Total Daily Calories',
-                          min = 1000, max = 4000, value = 2500),
-              sliderInput(inputId = 'numberMeals', label = 'Number of Meals',
-                          min = 2, max = 5, value = 3, ticks = FALSE),
-              checkboxGroupInput(inputId = 'calorieBalance',
-                                 label = 'Big Meal',
-                                 choices = c('Breakfast','Lunch','Dinner'))
+                          min = 1000, max = 4000, value = 2500)
             ),
             tabPanel(id = 'menuChoices', title = 'Meals',
               HTML('<br>'),
@@ -73,17 +65,15 @@ shinyUI(
                             options = list(
                               placeholder = 'Please search here',
                               onInitialize = I('function() { this.setValue(""); }')
-                            )),
-              selectizeInput(inputId = 'meal4',label = '',
-                            choices = c('Select 4+ meals...'),
-                            selected = 'Select 4+ meals...'),
-              selectizeInput(inputId = 'meal5',label = '',
-                            choices = c('Select 5 meals...'),
-                            selected = 'Select 5 meals...')
+                            ))
             ),
-            tabPanel(id = 'addFoods', title = 'Add Foods',
+            tabPanel(id = 'addFoods', title = 'Adjust My Day',
               HTML('<br>'),
-              h4('Build Recipe'),
+              h4('Meals Eaten'),
+              checkboxGroupInput(inputId = 'eatenMeals',
+                                 label = NULL,
+                                 choices = c('Breakfast','Lunch','Dinner')),
+              h4('Extra Food Eaten'),
               selectizeInput(inputId = 'selector',label = 'Select Ingredient',
                              choices = macros %>% pull(`Food Name`),
                              options = list(
@@ -93,13 +83,10 @@ shinyUI(
               numericInput(inputId = 'selectorQuantity',
                            label = 'Quantity, in grams',
                            value = 0),
-              actionButton(inputId = 'addIngredient', label = 'Add Ingredient'),
+              actionButton(inputId = 'addFood', label = 'Add Food'),
               uiOutput(HTML('recipeMessage')),
-              actionButton(inputId = 'clearRecipe', label = 'Clear Recipe'),
-              textInput(inputId = 'recipeName', label = 'Recipe Name'),
-              actionButton(inputId = 'buildRecipe', label = 'Build Recipe'),
-              uiOutput(HTML('buildMessage')),
-              actionButton(inputId = 'clearAllRecipes', label = 'Clear All Recipes'))
+              actionButton(inputId = 'clearFoods', label = 'Clear Added Foods')
+            )
           )
         ),
         position = "right"
