@@ -46,8 +46,6 @@ shinyUI(
             ),
             tabPanel(id = 'menuChoices', title = 'Meals',
               HTML('<br>'),
-              actionButton("goButton", "Create Recipes"),
-              HTML('<br><br>'),
               selectizeInput(inputId = 'meal1',label = 'Breakfast',
                             choices = names(allrecipes),
                             options = list(
@@ -83,8 +81,15 @@ shinyUI(
               numericInput(inputId = 'selectorQuantity',
                            label = 'Quantity, in grams',
                            value = 0),
-              actionButton(inputId = 'addFood', label = 'Add Food'),
+              actionButton(inputId = 'addFood', label = 'Add Item'),
               uiOutput(HTML('recipeMessage')),
+              textInput(inputId = 'newFoodstuff', label = 'Manually Enter Cals',
+                        value = '', placeholder = 'Enter Food'),
+              numericInput(inputId = 'foodstuffCal',
+                           label = 'Calories (in kcal)',
+                           value = 0),
+              actionButton(inputId = 'addFoodstuff', label = 'Add Food'),
+              uiOutput(HTML('foodstuffMessage')),
               actionButton(inputId = 'clearFoods', label = 'Clear Added Foods')
             )
           )

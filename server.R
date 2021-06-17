@@ -64,6 +64,8 @@ shinyServer(function(input, output, session) {
     macroIng$Fat          <- macroIng$Fat*macroIng$quantity/100
     macroIng$Carbohydrate <- macroIng$Carbohydrate*macroIng$quantity/100
     macroIng$kcal         <- macroIng$kcal*macroIng$quantity/100
+    names(macroIng) <-
+      c('Food_','Protein_','Fat_','Carbs_','kCals_','Quantity')
     tables <- readRDS('tables.rds')
     tables$extrafoodtable <- bind_rows(tables$extrafoodtable,
                                        macroIng)
@@ -75,21 +77,64 @@ shinyServer(function(input, output, session) {
                                    calBalance = calBalances$calBalance)
     output$filetable <- renderText({outputtable})
   })
-
-  observeEvent(input$goButton, {
-    output$txt <- renderUI({''})
-    # Calculate the daily calorie balance
+  
+  observeEvent(input$addFoodstuff, {
+    if(!is.numeric(input$foodstuffCal)){
+      output$foodstuffMessage <- renderUI({'Please input calories'})
+      return()
+    } else if(input$foodstuffCal<=0){
+      output$foodstuffMessage <- renderUI({'Please input a positive value for calories'})
+      return()
+    }
+    if(!nchar(input$newFoodstuff)>0){
+      output$foodstuffMessage <- renderUI({'Please enter a name for the food'})
+      return()
+    }
+    macroFood <- data.frame(Food_ = input$newFoodstuff,
+                            Protein_ = NA, Fat_ = NA, Carbs_ = NA,
+                            kCals_ = input$foodstuffCal,
+                            Quantity = 1)
+    tables <- readRDS('tables.rds')
+    tables$extrafoodtable <- bind_rows(tables$extrafoodtable,
+                                       macroFood)
+    saveRDS(tables, 'tables.rds')
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
-    
-    meal_options <- c('Breakfast','Mid-Morning','Lunch','Dinner','Supper')
-    possibleMeals <- switch(numberMeals,
-                            c(3), c(1,4), c(1,3,4),
-                            c(1,3,4,5), c(1:5))
-    possibleMeals <- meal_options[possibleMeals]
-    #calBalance[which(possibleMeals %in% input$calorieBalance)] <-
-    #  calBalance[1]*1.2
-    #calBalance <- round(calBalance*input$totalCalories/(sum(calBalance)),0)
-    meals <- c(input$meal1, input$meal2, input$meal3)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalance = calBalances$calBalance)
+    output$filetable <- renderText({outputtable})
+  })
+  
+  observeEvent(input$eatenMeals, {
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalance = calBalances$calBalance)
+    output$filetable <- renderText({outputtable})
+  }, ignoreNULL = FALSE)
+  
+  observeEvent(input$meal1, {
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalance = calBalances$calBalance)
+    output$filetable <- renderText({outputtable})
+  })
+  
+  observeEvent(input$meal2, {
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalance = calBalances$calBalance)
+    output$filetable <- renderText({outputtable})
+  })
+  
+  observeEvent(input$meal3, {
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,

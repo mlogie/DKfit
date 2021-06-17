@@ -8,7 +8,7 @@ getCalBalance <- function(totalCalories, eatenMeals){
                     numberMeals)
   tables <- readRDS('tables.rds')
   if(!is.null(tables$extrafoodtable)){
-    extraCals <- sum(tables$extrafoodtable$kcal)
+    extraCals <- sum(tables$extrafoodtable$kCals_)
     eaten <- c('Breakfast','Lunch','Dinner') %in% eatenMeals
     eatenCals <- extraCals + sum(as.numeric(calBalance[eaten]))
     calBalance[!eaten] <- as.numeric(calBalance[!eaten])-extraCals/sum(!eaten)
@@ -32,6 +32,8 @@ makerecipetable <- function(i, meals, allrecipes, calBalance){
                recipe$ingredients$unit)
       recipe$ingredients <- recipe$ingredients %>%
         select(ingredient, amount)
+      recipe$recipe <- paste0(recipe$recipe,'<br>Calories = ',
+                              10*round(calBalance[i]/10,0))
       paste0(
         HTML(
           htmlTable(x = recipe$ingredients,
