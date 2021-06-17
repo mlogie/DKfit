@@ -35,13 +35,29 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$clearFoods, {
     tables <- readRDS('tables.rds')
-    tables$extrafoodtable <- NULL
+    tables$extrafoodtable <- tables$extrafoodtable %>% filter(source != 'Man')
+    if(nrow(tables$extrafoodtable)==0) tables$extrafoodtable <- NULL
     saveRDS(tables, 'tables.rds')
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
+    output$filetable <- renderText({outputtable})
+  })
+  
+  observeEvent(input$clearIngs, {
+    tables <- readRDS('tables.rds')
+    tables$extrafoodtable <- tables$extrafoodtable %>% filter(source != 'Ing')
+    if(nrow(tables$extrafoodtable)==0) tables$extrafoodtable <- NULL
+    saveRDS(tables, 'tables.rds')
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
   
@@ -60,21 +76,23 @@ shinyServer(function(input, output, session) {
     macroIng <- macros[macros$`Food Name` == input$selector,]
     output$recipeMessage  <- renderUI({'Ingredient Added'})
     macroIng$quantity     <- input$selectorQuantity
-    macroIng$Protein      <- macroIng$Protein*macroIng$quantity/100
-    macroIng$Fat          <- macroIng$Fat*macroIng$quantity/100
-    macroIng$Carbohydrate <- macroIng$Carbohydrate*macroIng$quantity/100
-    macroIng$kcal         <- macroIng$kcal*macroIng$quantity/100
+    macroIng$Protein      <- round(macroIng$Protein*macroIng$quantity/100,0)
+    macroIng$Fat          <- round(macroIng$Fat*macroIng$quantity/100,0)
+    macroIng$Carbohydrate <- round(macroIng$Carbohydrate*macroIng$quantity/100,0)
+    macroIng$kcal         <- round(macroIng$kcal*macroIng$quantity/100,0)
+    macroIng$source       <- 'Ing'
     names(macroIng) <-
-      c('Food_','Protein_','Fat_','Carbs_','kCals_','Quantity')
+      c('Food_','Protein_','Fat_','Carbs_','kCals_','Quantity','source')
     tables <- readRDS('tables.rds')
     tables$extrafoodtable <- bind_rows(tables$extrafoodtable,
                                        macroIng)
     saveRDS(tables, 'tables.rds')
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
   
@@ -93,52 +111,67 @@ shinyServer(function(input, output, session) {
     macroFood <- data.frame(Food_ = input$newFoodstuff,
                             Protein_ = NA, Fat_ = NA, Carbs_ = NA,
                             kCals_ = input$foodstuffCal,
-                            Quantity = 1)
+                            Quantity = 1, source = 'Man')
     tables <- readRDS('tables.rds')
     tables$extrafoodtable <- bind_rows(tables$extrafoodtable,
                                        macroFood)
     saveRDS(tables, 'tables.rds')
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
   
   observeEvent(input$eatenMeals, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
+    output$filetable <- renderText({outputtable})
+  }, ignoreNULL = FALSE)
+  
+  observeEvent(input$skippedMeals, {
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
+    outputtable <- makerecipetable(i = 1:numberMeals,
+                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                   allrecipes = allrecipes,
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   }, ignoreNULL = FALSE)
   
   observeEvent(input$meal1, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
   
   observeEvent(input$meal2, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
   
   observeEvent(input$meal3, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals)
+    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
+                                 input$skippedMeals)
     outputtable <- makerecipetable(i = 1:numberMeals,
                                    meals = c(input$meal1, input$meal2, input$meal3),
                                    allrecipes = allrecipes,
-                                   calBalance = calBalances$calBalance)
+                                   calBalances = calBalances)
     output$filetable <- renderText({outputtable})
   })
 })

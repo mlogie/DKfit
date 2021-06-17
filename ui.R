@@ -8,7 +8,7 @@ macros <- readRDS('macros.rds')
 tmpdir <- tempdir()
 
 shinyUI(
-  navbarPage(theme = shinythemes::shinytheme('superhero'),
+  navbarPage(theme = shinythemes::shinytheme('sandstone'),
              'DK Fitness Menu App', id='nav',
     tabPanel('Menus',
       sidebarLayout(
@@ -67,10 +67,15 @@ shinyUI(
             ),
             tabPanel(id = 'addFoods', title = 'Adjust My Day',
               HTML('<br>'),
-              h4('Meals Eaten'),
+              h4('Meals Eaten or Skipped'),
+              fluidRow(column(6,
               checkboxGroupInput(inputId = 'eatenMeals',
-                                 label = NULL,
-                                 choices = c('Breakfast','Lunch','Dinner')),
+                                 label = 'Eaten Meals',
+                                 choices = c('Breakfast','Lunch','Dinner'))),
+                       column(6,
+              checkboxGroupInput(inputId = 'skippedMeals',
+                                 label = 'Skipped Meals',
+                                 choices = c('Breakfast','Lunch','Dinner')))),
               h4('Extra Food Eaten'),
               selectizeInput(inputId = 'selector',label = 'Select Ingredient',
                              choices = macros %>% pull(`Food Name`),
@@ -81,16 +86,21 @@ shinyUI(
               numericInput(inputId = 'selectorQuantity',
                            label = 'Quantity, in grams',
                            value = 0),
-              actionButton(inputId = 'addFood', label = 'Add Item'),
+              fluidRow(column(6,
+              actionButton(inputId = 'addFood', label = 'Add Item')),
+                       column(6,
+              actionButton(inputId = 'clearIngs', label = 'Clear Added Items'))),
               uiOutput(HTML('recipeMessage')),
               textInput(inputId = 'newFoodstuff', label = 'Manually Enter Cals',
                         value = '', placeholder = 'Enter Food'),
               numericInput(inputId = 'foodstuffCal',
                            label = 'Calories (in kcal)',
                            value = 0),
-              actionButton(inputId = 'addFoodstuff', label = 'Add Food'),
-              uiOutput(HTML('foodstuffMessage')),
-              actionButton(inputId = 'clearFoods', label = 'Clear Added Foods')
+              fluidRow(column(6,
+              actionButton(inputId = 'addFoodstuff', label = 'Add Food')),
+                       column(6,
+              actionButton(inputId = 'clearFoods', label = 'Clear Added Foods'))),
+              uiOutput(HTML('foodstuffMessage'))
             )
           )
         ),

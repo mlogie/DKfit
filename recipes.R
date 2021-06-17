@@ -3,25 +3,31 @@ saveRDS(list(recipetable = '',
              extrafoodtable = NULL),
         'tables.rds')
 
-getCalBalance <- function(totalCalories, eatenMeals){
-  calBalance <- rep(totalCalories/numberMeals,
-                    numberMeals)
+getCalBalance <- function(totalCalories, eatenMeals, skippedMeals){
+  possibleMeals <- c('Breakfast','Lunch','Dinner')
+  calBalance <- rep(totalCalories/length(possibleMeals),length(possibleMeals))
+  skipped <- possibleMeals %in% skippedMeals
+  eaten   <- possibleMeals %in% eatenMeals
   tables <- readRDS('tables.rds')
   if(!is.null(tables$extrafoodtable)){
     extraCals <- sum(tables$extrafoodtable$kCals_)
-    eaten <- c('Breakfast','Lunch','Dinner') %in% eatenMeals
-    eatenCals <- extraCals + sum(as.numeric(calBalance[eaten]))
-    calBalance[!eaten] <- as.numeric(calBalance[!eaten])-extraCals/sum(!eaten)
-    calBalance[calBalance<200] <- 200
   } else {
     extraCals <- 0
   }
-  data.frame(calBalance = calBalance, extraCals = extraCals)
+  extraCals <- extraCals - sum(calBalance[skipped])
+  calBalance[(!eaten)&(!skipped)] <-
+    calBalance[(!eaten)&(!skipped)]-extraCals/sum((!skipped)&(!eaten))
+  calBalance[calBalance<200] <- 200
+  calBalance[skipped] <- NA
+  tables <- readRDS('tables.rds')
+  
+  list(calBalance = calBalance, extraCals = extraCals, skipped = skipped)
 }
 
-makerecipetable <- function(i, meals, allrecipes, calBalance){
+makerecipetable <- function(i, meals, allrecipes, calBalances){
+  calBalance = calBalances$calBalance
   recipetable <- lapply(1:numberMeals, FUN = function(i){
-    if(nchar(meals[i])>0){
+    if((nchar(meals[i])>0)&(!calBalances$skipped[i])){
       recipe <- allrecipes$recipes[[meals[i]]]
       recipe$ingredients$quantity <-
         round(recipe$ingredients$quantity*calBalance[i]/500,0)
@@ -48,6 +54,8 @@ makerecipetable <- function(i, meals, allrecipes, calBalance){
         HTML(recipe$recipe),
         HTML('<br>')
       )
+    } else if(calBalances$skipped[i]){
+      HTML(paste0('<br>Meal ',i,' skipped.<br>'))
     } else {
       HTML(paste0('<br>No recipe selected for meal ',i,'<br>'))
     }
@@ -59,9 +67,21 @@ makerecipetable <- function(i, meals, allrecipes, calBalance){
     extrafood <- ''
   } else {
     extrafood <- paste0('<br>Extra Food<br>',
-                        HTML(htmlTable(x = tables$extrafoodtable)))
+                        HTML(htmlTable(x = tables$extrafoodtable %>%
+                                         select(-source))),
+                        '<br>Total Calories Extra = ',
+                        sum(tables$extrafoodtable$kCals_))
   }
-  outputtable <- paste0(tables$recipetable,
+  if(any(nchar(meals)>0)){
+    headerText <- paste0('Total Day Calories = ',
+                         sum(sum(calBalance[!is.na(calBalance)]),
+                             sum(tables$extrafoodtable$kCals_)))
+  } else {
+    headerText <- ''
+  }
+
+  outputtable <- paste0(headerText, '<br>',
+                        tables$recipetable,
                         extrafood)
   outputtable
 }
