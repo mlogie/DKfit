@@ -1,7 +1,7 @@
 shinyServer(function(input, output, session) {
   allrecipes <- reactiveValues(recipes = allrecipes)
   output$txt <- renderUI({
-    'Select meals and click Create Recipes in Meals tab'
+    ''
   })
   
   observe({

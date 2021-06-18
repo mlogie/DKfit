@@ -42,28 +42,31 @@ shinyUI(
                                       'Extremely active (very hard exercise/sports & a physical job)')),
               HTML('<br>'),
               sliderInput(inputId = 'totalCalories', label = 'Total Daily Calories',
-                          min = 1000, max = 4000, value = 2500)
+                          min = 1000, max = 4000, value = 2106)
             ),
             tabPanel(id = 'menuChoices', title = 'Meals',
               HTML('<br>'),
-              selectizeInput(inputId = 'meal1',label = 'Breakfast',
-                            choices = names(allrecipes),
-                            options = list(
-                              placeholder = 'Please search here',
-                              onInitialize = I('function() { this.setValue(""); }')
-                            )),
-              selectizeInput(inputId = 'meal2',label = 'Lunch',
-                            choices = names(allrecipes),
-                            options = list(
-                              placeholder = 'Please search here',
-                              onInitialize = I('function() { this.setValue(""); }')
-                            )),
-              selectizeInput(inputId = 'meal3',label = 'Dinner',
-                            choices = names(allrecipes),
-                            options = list(
-                              placeholder = 'Please search here',
-                              onInitialize = I('function() { this.setValue(""); }')
-                            ))
+              selectizeInput(inputId = 'meal1',label = 'Breakfast'
+                            ,choices = names(allrecipes)
+                            ,selected = names(allrecipes)[1]
+                            #,options = list(
+                            #  placeholder = 'Please search here',
+                            #  onInitialize = I('function() { this.setValue(""); }'))
+                            ),
+              selectizeInput(inputId = 'meal2',label = 'Lunch'
+                            ,choices = names(allrecipes)
+                            ,selected = names(allrecipes)[2]
+                            #,options = list(
+                            #  placeholder = 'Please search here',
+                            #  onInitialize = I('function() { this.setValue(""); }'))
+                            ),
+              selectizeInput(inputId = 'meal3',label = 'Dinner'
+                            ,choices = names(allrecipes)
+                            ,selected = names(allrecipes)[3]
+                            #,options = list(
+                            #  placeholder = 'Please search here',
+                            #  onInitialize = I('function() { this.setValue(""); }'))
+                            )
             ),
             tabPanel(id = 'addFoods', title = 'Adjust My Day',
               HTML('<br>'),
