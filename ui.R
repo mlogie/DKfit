@@ -4,8 +4,6 @@ new.packages <- package.list[!(package.list %in% installed.packages()[,"Package"
 if(length(new.packages)) lapply(new.packages, install.packages)
 success <- all(unlist(lapply(package.list, require, character.only = TRUE)))
 source('recipes.R')
-macros <- readRDS('macros.rds')
-tmpdir <- tempdir()
 
 shinyUI(
   navbarPage(theme = shinythemes::shinytheme('sandstone'),

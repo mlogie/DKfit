@@ -1,10 +1,11 @@
 numberMeals <- 3
+possibleMeals <- c('Breakfast','Lunch','Dinner')
 saveRDS(list(recipetable = '',
              extrafoodtable = NULL),
         'tables.rds')
+macros <- readRDS('macros.rds')
 
 getCalBalance <- function(totalCalories, eatenMeals, skippedMeals){
-  possibleMeals <- c('Breakfast','Lunch','Dinner')
   calBalance <- rep(totalCalories/length(possibleMeals),length(possibleMeals))
   skipped <- possibleMeals %in% skippedMeals
   eaten   <- possibleMeals %in% eatenMeals
@@ -79,7 +80,7 @@ makerecipetable <- function(i, meals, allrecipes, calBalances){
   } else {
     headerText <- ''
   }
-
+  
   outputtable <- paste0(headerText, '<br>',
                         tables$recipetable,
                         extrafood)
@@ -136,5 +137,4 @@ allrecipes <- list(
       paste0('Thinly slice chicken and fry in olive oil on medium heat until cooked, approximately 10 minutes.  Add pinenuts for the last minute to lightly toast. ',
              'Meanwhile, steam the broccoli and asparagus and serve with chicken and pine nuts.'),
     calories = 500, user = FALSE)
-  )
-
+)
