@@ -1,14 +1,14 @@
-numberMeals <- 3
-possibleMeals <- c('Breakfast','Lunch','Dinner')
+possibleMeals <- c('Meal 1','Meal 2','Meal 3','Meal 4','Meal 5')
 saveRDS(list(recipetable = '',
              extrafoodtable = NULL),
         'tables.rds')
 macros <- readRDS('macros.rds')
 
-getCalBalance <- function(totalCalories, eatenMeals, skippedMeals){
-  calBalance <- rep(totalCalories/length(possibleMeals),length(possibleMeals))
-  skipped <- possibleMeals %in% skippedMeals
-  eaten   <- possibleMeals %in% eatenMeals
+getCalBalance <- function(totalCalories, eatenMeals, skippedMeals, numMeals){
+  calBalance <- rep(totalCalories/numMeals, numMeals)
+  myMeals <- possibleMeals[1:numMeals]
+  skipped <- myMeals %in% skippedMeals
+  eaten   <- myMeals %in% eatenMeals
   tables <- readRDS('tables.rds')
   if(!is.null(tables$extrafoodtable)){
     extraCals <- sum(tables$extrafoodtable$kCals_)
@@ -25,9 +25,9 @@ getCalBalance <- function(totalCalories, eatenMeals, skippedMeals){
   list(calBalance = calBalance, extraCals = extraCals, skipped = skipped)
 }
 
-makerecipetable <- function(i, meals, allrecipes, calBalances){
+makerecipetable <- function(meals, allrecipes, calBalances, numMeals){
   calBalance = calBalances$calBalance
-  recipetable <- lapply(1:numberMeals, FUN = function(i){
+  recipetable <- lapply(1:numMeals, FUN = function(i){
     if((nchar(meals[i])>0)&(!calBalances$skipped[i])){
       recipe <- allrecipes$recipes[[meals[i]]]
       recipe$ingredients$quantity <-

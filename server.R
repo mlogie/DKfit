@@ -1,8 +1,19 @@
 shinyServer(function(input, output, session) {
-  allrecipes <- reactiveValues(recipes = allrecipes)
+  allrecipesreact <- reactiveValues(recipes = allrecipes,
+                                    numMeals = 3)
   output$txt <- renderUI({
     ''
   })
+  
+  updateSelectizeInput(session,
+                       inputId = 'selector',
+                       label = 'Select Ingredient',
+                       choices = macros %>% pull(`Food Name`),
+                       server = TRUE,
+                       options = list(
+                         placeholder = 'Please search here',
+                         onInitialize = I('function() { this.setValue(""); }')
+                       ))
   
   observe({
     ree <- (10*input$weight) + (6.25*input$height) - (5*input$age)
@@ -39,11 +50,11 @@ shinyServer(function(input, output, session) {
     if(nrow(tables$extrafoodtable)==0) tables$extrafoodtable <- NULL
     saveRDS(tables, 'tables.rds')
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
+                                 input$skippedMeals, as.numeric(input$numMeals))
+    outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
                                    allrecipes = allrecipes,
-                                   calBalances = calBalances)
+                                   calBalances = calBalances,
+                                   numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
   })
   
@@ -53,11 +64,11 @@ shinyServer(function(input, output, session) {
     if(nrow(tables$extrafoodtable)==0) tables$extrafoodtable <- NULL
     saveRDS(tables, 'tables.rds')
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
+                                 input$skippedMeals, as.numeric(input$numMeals))
+    outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
+                                   allrecipes = allrecipesreact,
+                                   calBalances = calBalances,
+                                   numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
   })
   
@@ -88,11 +99,11 @@ shinyServer(function(input, output, session) {
                                        macroIng)
     saveRDS(tables, 'tables.rds')
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
+                                 input$skippedMeals, as.numeric(input$numMeals))
+    outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
+                                   allrecipes = allrecipesreact,
+                                   calBalances = calBalances,
+                                   numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
   })
   
@@ -117,61 +128,51 @@ shinyServer(function(input, output, session) {
                                        macroFood)
     saveRDS(tables, 'tables.rds')
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
+                                 input$skippedMeals, as.numeric(input$numMeals))
+    outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
+                                   allrecipes = allrecipesreact,
+                                   calBalances = calBalances,
+                                   numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
   })
   
-  observeEvent(input$eatenMeals, {
+  observe({
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
+                                 input$skippedMeals, as.numeric(input$numMeals))
+    outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
+                                   allrecipes = allrecipesreact,
+                                   calBalances = calBalances,
+                                   numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
-  }, ignoreNULL = FALSE)
-  
-  observeEvent(input$skippedMeals, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
-    output$filetable <- renderText({outputtable})
-  }, ignoreNULL = FALSE)
-  
-  observeEvent(input$meal1, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
-    output$filetable <- renderText({outputtable})
+    
+    if(input$numMeals<5){
+      updateSelectizeInput(session, inputId = 'meal5', selected = "",
+                           choices = '', 
+                           options = list(
+                             placeholder = 'Select 5 meals to choose a meal'))
+    }
+    
+    if(input$numMeals<4){
+      updateSelectizeInput(session, inputId = 'meal4', selected = "",
+                           choices = '', 
+                           options = list(
+                             placeholder = 'Select 4+ meals to choose a meal'))
+    }
   })
   
-  observeEvent(input$meal2, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
-    output$filetable <- renderText({outputtable})
-  })
-  
-  observeEvent(input$meal3, {
-    calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
-                                 input$skippedMeals)
-    outputtable <- makerecipetable(i = 1:numberMeals,
-                                   meals = c(input$meal1, input$meal2, input$meal3),
-                                   allrecipes = allrecipes,
-                                   calBalances = calBalances)
-    output$filetable <- renderText({outputtable})
+  observeEvent(input$numMeals, {
+    if(input$numMeals==5&allrecipesreact$numMeals<5){
+      updateSelectizeInput(session, inputId = 'meal5', selected = "",
+                           choices = names(allrecipesreact$recipes),
+                           options = list(
+                             placeholder = 'Select a meal'))
+    }
+    if(input$numMeals>=4&allrecipesreact$numMeals<4){
+      updateSelectizeInput(session, inputId = 'meal4', selected = "",
+                           choices = names(allrecipesreact$recipes),
+                           options = list(
+                             placeholder = 'Select a meal'))
+    }
+    allrecipesreact$numMeals <- input$numMeals
   })
 })

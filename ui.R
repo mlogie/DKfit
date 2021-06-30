@@ -44,27 +44,29 @@ shinyUI(
             ),
             tabPanel(id = 'menuChoices', title = 'Meals',
               HTML('<br>'),
-              selectizeInput(inputId = 'meal1',label = 'Breakfast'
+              selectizeInput(inputId = 'numMeals', label = 'Number of Meals',
+                             choices = c(3,4,5), selected = 3),
+              selectizeInput(inputId = 'meal1', label = 'Meal 1'
                             ,choices = names(allrecipes)
-                            ,selected = names(allrecipes)[1]
-                            #,options = list(
-                            #  placeholder = 'Please search here',
-                            #  onInitialize = I('function() { this.setValue(""); }'))
-                            ),
-              selectizeInput(inputId = 'meal2',label = 'Lunch'
+                            ,selected = names(allrecipes)[1]),
+              selectizeInput(inputId = 'meal2', label = 'Meal 2'
                             ,choices = names(allrecipes)
-                            ,selected = names(allrecipes)[2]
-                            #,options = list(
-                            #  placeholder = 'Please search here',
-                            #  onInitialize = I('function() { this.setValue(""); }'))
-                            ),
-              selectizeInput(inputId = 'meal3',label = 'Dinner'
+                            ,selected = names(allrecipes)[2]),
+              selectizeInput(inputId = 'meal3', label = 'Meal 3'
                             ,choices = names(allrecipes)
-                            ,selected = names(allrecipes)[3]
-                            #,options = list(
-                            #  placeholder = 'Please search here',
-                            #  onInitialize = I('function() { this.setValue(""); }'))
-                            )
+                            ,selected = names(allrecipes)[3]),
+              selectizeInput(inputId = 'meal4', label = 'Meal 4'
+                             ,choices = "", selected = ""
+                             ,options = list(
+                               placeholder = 'Select 4+ meals to choose a meal',
+                               onInitialize = I('function() { this.setValue(""); }'))
+              ),
+              selectizeInput(inputId = 'meal5', label = 'Meal 5'
+                             ,choices = "", selected = ""
+                             ,options = list(
+                               placeholder = 'Select 5 meals to choose a meal',
+                               onInitialize = I('function() { this.setValue(""); }'))
+              )
             ),
             tabPanel(id = 'addFoods', title = 'Adjust My Day',
               HTML('<br>'),
@@ -72,14 +74,14 @@ shinyUI(
               fluidRow(column(6,
               checkboxGroupInput(inputId = 'eatenMeals',
                                  label = 'Eaten Meals',
-                                 choices = c('Breakfast','Lunch','Dinner'))),
+                                 choices = c('Meal 1','Meal 2','Meal 3'))),
                        column(6,
               checkboxGroupInput(inputId = 'skippedMeals',
                                  label = 'Skipped Meals',
-                                 choices = c('Breakfast','Lunch','Dinner')))),
+                                 choices = c('Meal 1','Meal 2','Meal 3')))),
               h4('Extra Food Eaten'),
               selectizeInput(inputId = 'selector',label = 'Select Ingredient',
-                             choices = macros %>% pull(`Food Name`),
+                             choices = NULL,
                              options = list(
                                placeholder = 'Please search here',
                                onInitialize = I('function() { this.setValue(""); }')
