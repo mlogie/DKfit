@@ -52,7 +52,7 @@ shinyServer(function(input, output, session) {
     calBalances <- getCalBalance(input$totalCalories, input$eatenMeals,
                                  input$skippedMeals, as.numeric(input$numMeals))
     outputtable <- makerecipetable(meals = c(input$meal1, input$meal2, input$meal3, input$meal4, input$meal5),
-                                   allrecipes = allrecipes,
+                                   allrecipes = allrecipesreact,
                                    calBalances = calBalances,
                                    numMeals = as.numeric(input$numMeals))
     output$filetable <- renderText({outputtable})
@@ -166,12 +166,36 @@ shinyServer(function(input, output, session) {
                            choices = names(allrecipesreact$recipes),
                            options = list(
                              placeholder = 'Select a meal'))
+      updateCheckboxGroupInput(session, inputId = 'eatenMeals',
+                               label = 'Eaten Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3',
+                                           'Meal 4','Meal 5'))
+      updateCheckboxGroupInput(session, inputId = 'skippedMeals',
+                               label = 'Skipped Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3',
+                                           'Meal 4','Meal 5'))
     }
     if(input$numMeals>=4&allrecipesreact$numMeals<4){
       updateSelectizeInput(session, inputId = 'meal4', selected = "",
                            choices = names(allrecipesreact$recipes),
                            options = list(
                              placeholder = 'Select a meal'))
+    }
+    if(input$numMeals==4&allrecipesreact$numMeals<4){
+      updateCheckboxGroupInput(session, inputId = 'eatenMeals',
+                               label = 'Eaten Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3','Meal 4'))
+      updateCheckboxGroupInput(session, inputId = 'skippedMeals',
+                               label = 'Skipped Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3','Meal 4'))
+    }
+    if(input$numMeals==3&allrecipesreact$numMeals>3){
+      updateCheckboxGroupInput(session, inputId = 'eatenMeals',
+                               label = 'Eaten Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3'))
+      updateCheckboxGroupInput(session, inputId = 'skippedMeals',
+                               label = 'Skipped Meals',
+                               choices = c('Meal 1','Meal 2','Meal 3'))
     }
     allrecipesreact$numMeals <- input$numMeals
   })
